@@ -389,13 +389,13 @@ void Opencore::StopTheWorld(int pid) {
 bool Opencore::StopTheThread(int tid) {
     pids.push_back(tid);
     if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
-        JNI_LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
+        JNI_LOGW("%s %d: %s", __func__ , tid, strerror(errno));
         return false;
     }
     int status = 0;
-    int result = waitpid(tid, &status, WUNTRACED | __WALL);
+    int result = waitpid(tid, &status, /*WUNTRACED*/ WNOHANG | __WALL);
     if (result != tid) {
-        JNI_LOGW("waitpid failed on %d while detaching\n", tid);
+        JNI_LOGW("waitpid failed on %d while detaching", tid);
         return false;
     }
 
@@ -408,7 +408,7 @@ bool Opencore::StopTheThread(int tid) {
         }
         return true;
     }
-    JNI_LOGW("waitpid failed on %d while non-stop, status 0x%x\n", tid, status);
+    JNI_LOGW("waitpid failed on %d while non-stop, status 0x%x", tid, status);
     return false;
 }
 
